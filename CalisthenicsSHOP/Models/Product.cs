@@ -2,7 +2,6 @@
 {
     public enum ProductCategoryEnum
     {
-        Unchosen,
         Equipment,
         Accessories,
         Cloth,
@@ -15,7 +14,7 @@
         public string Name { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; }
-        public ProductCategoryEnum Category { get; set; } = ProductCategoryEnum.Unchosen;
+        public ProductCategoryEnum Category { get; set; }
 
         public static bool operator == (Product prod1, Product prod2)
         {
