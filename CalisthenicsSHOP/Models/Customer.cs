@@ -8,5 +8,12 @@
         public string Address { get; set; }
         public int Discout { get; set; }
 
+        public bool IsValid()
+        {
+            return !(string.IsNullOrEmpty(FirstName)
+                    && string.IsNullOrEmpty(LastName)
+                    && string.IsNullOrEmpty(Address));
+        }
+
     }
 }
