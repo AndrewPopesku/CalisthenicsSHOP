@@ -1,84 +1,48 @@
-﻿using CalisthenicsSHOP.Models;
-using CalisthenicsSHOP.Services;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using CalisthenicsSHOP.Data;
+using CalisthenicsSHOP.Models;
 
 namespace CalisthenicsSHOP.Controllers
 {
     public class ProductsController : Controller
     {
-        private List<Product> _products;
+        private readonly ShopDbContext _context;
 
-        public ProductsController(SampleData data)
+        public ProductsController(ShopDbContext context)
         {
-            _products = data.Products;
+            _context = context;
         }
 
-        public IActionResult Index()
+        // GET: Products
+        public async Task<IActionResult> Index()
         {
-            return View(_products);
+              return _context.Products != null ? 
+                          View(await _context.Products.ToListAsync()) :
+                          Problem("Entity set 'ShopDbContext.Products'  is null.");
         }
 
-        public IActionResult View(int id)
+        // GET: Products/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var product = _products[_products.FindIndex(prod => prod.Id == id)];
+            if (id == null || _context.Products == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
             return View(product);
-        }
-
-        [HttpGet]
-        public IActionResult Edit(int id)
-        {
-            var prodIndex = _products.FindIndex(prod => prod.Id == id);
-            if (prodIndex == -1)
-            {
-                return Content("Product wasn't found!");
-            }
-
-            return View(_products[prodIndex]);
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Product product)
-        {
-            var prodIndex = _products.FindIndex(prod => prod.Id == product.Id);
-            if (_products[prodIndex] == product)
-            {
-                return View();
-            }
-
-            _products[prodIndex] = product;
-
-            return View("Index", _products);
-        }
-
-        [HttpGet]
-        public IActionResult Create()
-        {
-            var id = (_products.Any()) ? _products.Select(prod => prod.Id).Max() + 1 : 1;
-            return View(new Product { Id = id });
-        }
-
-        [HttpPost]
-        public IActionResult Create(Product product)
-        {
-            if (product.IsValid())
-            {
-                _products.Add(product);
-                return View("Index", _products);
-            }
-
-            return View();
-        }
-
-        public IActionResult Delete(int id)
-        {
-            var prodIndex = _products.FindIndex(prod => prod.Id == id);
-            if (prodIndex == -1)
-            {
-                return Content("Product wasn't found!");
-            }
-
-            _products.RemoveAt(prodIndex);
-            return View("Index", _products);
         }
     }
 }

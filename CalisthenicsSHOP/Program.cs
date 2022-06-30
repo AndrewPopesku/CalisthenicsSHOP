@@ -1,32 +1,26 @@
 using CalisthenicsSHOP.Data;
-using CalisthenicsSHOP.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ShopDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<SampleData>();
 
 var app = builder.Build();
-
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
     try
     {
-        var context = services.GetRequiredService<ShopDbContext>();
-        DbInitializer.Initialize(context);
+        DbInitializer.Initialize(services);
     }
-    catch(Exception ex)
+    catch(Exception)
     {
-        var logger = services.GetService<ILogger<Program>>();
-        logger.LogError(ex, "An error occured seeding the DB");
+        throw;
     }
 }
 
@@ -46,7 +40,11 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Products}/{action=Index}/{id?}");
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 app.Run();
