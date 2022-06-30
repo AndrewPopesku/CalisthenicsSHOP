@@ -8,7 +8,7 @@ namespace CalisthenicsSHOP.Controllers
     {
         private List<Product> _products;
 
-        public ProductsController(Data data)
+        public ProductsController(SampleData data)
         {
             _products = data.Products;
         }
